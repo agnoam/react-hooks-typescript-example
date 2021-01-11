@@ -1,6 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from 'react-router-dom';
 import { LocalStorageKeys } from "../../../constants/localStorage.keys";
+import { FormControl, InputLabel, Input, Button } from '@material-ui/core';
 
 const LoginPage = () => {
     const history = useHistory();
@@ -10,14 +11,21 @@ const LoginPage = () => {
     return (
         <div>
             <p>LoginPage</p>
-            <input 
-                placeholder={"username"}
-                onChange={(e) => setCreds({ username: e.target.value as string, password: creds.password })} />
-            <input 
-                placeholder={"password"}
-                onChange={(e) => setCreds({ username: creds.username, password: e.target.value as string })} />
-
-            <button disabled={!creds.username.length || !creds.password.length} onClick={() => login(creds, history)}>Login</button>
+            <FormControl>    
+                <InputLabel htmlFor="username-input">Username</InputLabel>
+                <Input 
+                    id="username-input" 
+                    aria-describedby="username-text-input" 
+                    onChange={(e) => setCreds({ username: e.target.value as string, password: creds.password })} />
+            </FormControl>
+            <FormControl>
+                <InputLabel htmlFor="password-input">Password</InputLabel>
+                <Input 
+                    id="password-input" 
+                    aria-describedby="password-text input"
+                    onChange={(e) => setCreds({ username: creds.username, password: e.target.value as string })} />
+            </FormControl>
+            <Button disabled={!creds.username.length || !creds.password.length} onClick={() => login(creds, history)}>Login</Button>
         </div>
     );
 }
