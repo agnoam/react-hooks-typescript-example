@@ -1,8 +1,18 @@
 .page-content {
     // height: 100vh;
-
+    
     #input-container {
         display: flex;
         justify-content: center;
+    }
+    
+    .gallery-container {
+        text-align: center;
+    }
+
+    .loader-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
     }
 }
