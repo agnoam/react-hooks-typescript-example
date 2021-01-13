@@ -1,0 +1,28 @@
+.page-container {
+    background: #f8f9fa;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .title {
+        font-weight: bold;
+        font-size: large;
+        text-align: center;
+    }
+
+    #login-card {
+        background: white;
+        padding: 10%;
+
+        .input-ctrl {
+            margin-top: 10px;
+        }
+        
+        button {
+            margin-top: 25px;
+            width: 100%;
+        }
+    }
+}

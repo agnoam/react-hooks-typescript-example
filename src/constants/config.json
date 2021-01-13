@@ -1,3 +1,4 @@
 {
-    "baseSite": "http://aissp/sites/Team"
+    "baseSite": "http://aissp/sites/Team",
+    "serverURL": "<serverURL>"
 }
