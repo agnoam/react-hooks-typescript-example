@@ -2,14 +2,14 @@ import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } fro
 import { useHistory } from "react-router-dom";
 import { LocalStorageKeys } from "../../../constants/localStorage.keys";
 import { Credentials } from "../LoginPage/LoginPage";
-import { Input, InputLabel } from '@material-ui/core';
+import { Grow, Input, InputLabel } from '@material-ui/core';
 import { PhotoSwipeGallery, PhotoSwipeGalleryItem } from 'react-photoswipe';
 import './GalleryPage.scss';
 import 'react-photoswipe/lib/photoswipe.css';
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { HttpService } from "../../shared/httpService";
-import { RingLoader } from 'halogenium';
+// import InfiniteScroll from "react-infinite-scroll-component";
+import { searchImageByName, ImageObj } from "../../shared/httpService";
+// import { RingLoader } from 'halogenium';
 
 /**
  * @description Moving to login page by react-router-dom
@@ -48,12 +48,7 @@ function handleNameChange(
     setState: Dispatch<SetStateAction<GalleryState | undefined>>
 ): void {
     let _state: GalleryState = state as GalleryState;
-    _state ? _state.nameToSearch = e.target.value : _state = new GalleryState(e.target.value, [], [{
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    }]);
+    _state ? _state.nameToSearch = e.target.value : _state = new GalleryState(e.target.value, [], []);
     
     setState(_state);
 }
@@ -68,65 +63,36 @@ const getThumbnailContent = (item: PhotoSwipeGalleryItem) => {
     );
 }
 
-const mockHttp = (state: GalleryState | undefined, setState: Dispatch<SetStateAction<GalleryState | undefined>>): void => {
-    const mockData = [{
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    },
-    {
-        src: 'https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2019/07/Man-Silhouette.jpg',
-        thumbnail: 'https://www.shutterstock.com/blog/wp-content/uploads/sites/5/2019/07/Man-Silhouette.jpg',
-        w: 1980,
-        h: 1080
-    },
-    {
-        src: 'https://picsum.photos/200/300',
-        thumbnail: 'https://picsum.photos/200/300',
-        w: 1980,
-        h: 1080
-    },
-    {
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    },
-    {
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    },
-    {
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    },
-    {
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    }];
+const handleImagesLoad = async (
+    e: any /* : KeyboardEvent<HTMLTextAreaElement | HTMLInputElement> */,
+    state: GalleryState | undefined, 
+    setState: Dispatch<SetStateAction<GalleryState | undefined>>
+): Promise<void> => {
+    if (e.code === 'Enter' && state?.nameToSearch.length) {
+        console.log(state.nameToSearch);
+        const images: ImageObj[] | undefined = await searchImageByName(state.nameToSearch);
+        
+        // Convert from ImageObj to PhotoSwipeItem
+        if (images) {
+            const photoSwipeItems: PhotoSwipeGalleryItem[] = [];
 
-    let _state: GalleryState = state as GalleryState;
-    _state.items ? _state.items.concat(mockData) : _state = new GalleryState('', [], mockData);
-    console.log('setting new state', _state);
-    setState(_state);
+            images.map((imageObj: ImageObj) => photoSwipeItems.push({ 
+                src: imageObj.originalURL,
+                thumbnail: imageObj.thumbnailURL,
+                w: imageObj.width,
+                h: imageObj.height
+            }));
+
+            let _state: GalleryState = state as GalleryState;
+            _state ? _state.items = photoSwipeItems : _state = new GalleryState('', [], photoSwipeItems);
+            setState(_state);
+        }
+    }
 }
 
 const GalleryPage = () => {
     const history = useHistory();
-    const [state, setState] = useState<GalleryState>(new GalleryState('', [], [{
-        src: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        thumbnail: 'https://static.toiimg.com/thumb/72975551.cms?width=680&height=512&imgsize=881753',
-        w: 1980,
-        h: 1080
-    }]));
-    const items: PhotoSwipeGalleryItem[] = []
+    const [state, setState] = useState<GalleryState>(new GalleryState('', [], []));
 
     // Similar to componentDidMount and componentDidUpdate
     useEffect(() => {
@@ -141,10 +107,13 @@ const GalleryPage = () => {
             <p>GalleryPage</p>
             <div id="input-container">
                 <InputLabel htmlFor="name-input"></InputLabel>
-                <Input 
-                    id="name-input"
-                    autoFocus={true}
-                    onChange={(e) => handleNameChange(e, state, setState as any)} />
+                <Grow in={true}>
+                    <Input 
+                        id="name-input"
+                        autoFocus={true}
+                        onKeyDown={(e) => handleImagesLoad(e, state, setState as any)}
+                        onChange={(e) => handleNameChange(e, state, setState as any)} />
+                </Grow>
             </div>
             
             <div className="gallery-container">
@@ -156,23 +125,24 @@ const GalleryPage = () => {
                     loader={<p>Loading...</p>}
                     children={items}
                 /> */}
-                <InfiniteScroll
+                <PhotoSwipeGallery 
+                    isOpen={false} 
+                    items={state?.items} 
+                    options={{ closeOnScroll: true, pinchToClose: true }} 
+                    thumbnailContent={getThumbnailContent} />
+                {/* <InfiniteScroll
                     dataLength={state?.items.length || 0}
                     next={() => mockHttp(state, setState as any)}
                     hasChildren={!!state?.items.length}
                     hasMore={false}
                     loader={<div className="loader-container"><RingLoader color="#36d7b7" loading={true} size='35px' /></div>}>
                     { 
-                        // items.length ? 
-                            <PhotoSwipeGallery 
-                                isOpen={false} 
-                                items={state?.items || []} 
-                                options={{}} 
-                                thumbnailContent={getThumbnailContent} />
-                        // :
-                            // <p>There is no images to show</p>
+                        state?.items.length ? 
+                            state?.items.map((item, i) => <div><p>i</p></div>)
+                        :
+                            <p>There is no images to show</p>
                     }
-                </InfiniteScroll>
+                </InfiniteScroll> */}
             </div>
         </div>
     );
