@@ -8,6 +8,7 @@ import './GalleryPage.scss';
 import 'react-photoswipe/lib/photoswipe.css';
 import { LazyLoadImage } from "react-lazy-load-image-component";
 // import InfiniteScroll from "react-infinite-scroll-component";
+import InfiniteScroll from 'react-infinite-scroller';
 import { searchImageByName, ImageObj } from "../../shared/httpService";
 // import { RingLoader } from 'halogenium';
 
@@ -55,11 +56,15 @@ function handleNameChange(
 
 const getThumbnailContent = (item: PhotoSwipeGalleryItem) => {
     return (
-      <LazyLoadImage
-        alt=""
-        width="120"
-        height="70"
-        src={item.thumbnail} />
+        <div>
+        {
+            item && <LazyLoadImage
+                alt=""
+                width="120"
+                height="70"
+                src={item.thumbnail} />
+        }
+        </div>
     );
 }
 
@@ -90,6 +95,35 @@ const handleImagesLoad = async (
     }
 }
 
+const fetchMoreData = (state: GalleryState, setState: any) => {
+    // a fake async api call like which sends
+    // 3 more records in 1.5 secs
+    setTimeout(() => {
+        const newItems: PhotoSwipeGalleryItem[] = [{
+            src: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg',
+            thumbnail: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg',
+            w: 1920,
+            h: 1080
+        },
+        {
+            src: 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg',
+            thumbnail: 'https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg',
+            w: 1920,
+            h: 1080
+        },
+        {
+            src: 'https://killerattitudestatus.in/wp-content/uploads/2019/12/gud-night-images.jpg',
+            thumbnail: 'https://killerattitudestatus.in/wp-content/uploads/2019/12/gud-night-images.jpg',
+            w: 1920,
+            h: 1080
+        }];
+
+        setState({
+            items: state?.items.concat(newItems)
+        });
+    }, 1500);
+}
+
 const GalleryPage = () => {
     const history = useHistory();
     const [state, setState] = useState<GalleryState>(new GalleryState('', [], []));
@@ -117,32 +151,19 @@ const GalleryPage = () => {
             </div>
             
             <div className="gallery-container">
-                {/* <PhotoSwipeGallery isOpen={false} items={items} options={{}} thumbnailContent={getThumbnailContent} />
-                <InfiniteScroll 
-                    dataLength={5}
-                    next={() => console.log('reading next')}
-                    hasMore={true} 
-                    loader={<p>Loading...</p>}
-                    children={items}
-                /> */}
-                <PhotoSwipeGallery 
-                    isOpen={false} 
-                    items={state?.items} 
-                    options={{ closeOnScroll: true, pinchToClose: true }} 
-                    thumbnailContent={getThumbnailContent} />
-                {/* <InfiniteScroll
-                    dataLength={state?.items.length || 0}
-                    next={() => mockHttp(state, setState as any)}
-                    hasChildren={!!state?.items.length}
-                    hasMore={false}
-                    loader={<div className="loader-container"><RingLoader color="#36d7b7" loading={true} size='35px' /></div>}>
-                    { 
-                        state?.items.length ? 
-                            state?.items.map((item, i) => <div><p>i</p></div>)
-                        :
-                            <p>There is no images to show</p>
-                    }
-                </InfiniteScroll> */}
+                {/* Working example with PhotoSwipe */}
+                <InfiniteScroll
+                    pageStart={0}
+                    loadMore={() => fetchMoreData(state, setState)}
+                    hasMore={true}
+                    loader={<div className="loader" key={0}>Loading ...</div>}
+                >
+                    <PhotoSwipeGallery 
+                        isOpen={false} 
+                        items={state?.items} 
+                        options={{ closeOnScroll: true, pinchToClose: true }} 
+                        thumbnailContent={getThumbnailContent} />
+                </InfiniteScroll>
             </div>
         </div>
     );
