@@ -29,7 +29,7 @@ export const searchImageByName = async (name: string, numResults?: number): Prom
             }
         });
 
-        if (res.status === 200)
+        if (res.status == ResponseStatus.Ok)
             return res.data as ImageObj[];
         throw Error(`searchImage http request ex:`);
     } catch(ex) {

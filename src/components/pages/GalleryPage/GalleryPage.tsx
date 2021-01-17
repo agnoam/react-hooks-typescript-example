@@ -7,11 +7,15 @@ import { PhotoSwipeGallery, PhotoSwipeGalleryItem } from 'react-photoswipe';
 import './GalleryPage.scss';
 import 'react-photoswipe/lib/photoswipe.css';
 import { LazyLoadImage } from "react-lazy-load-image-component";
-// import InfiniteScroll from "react-infinite-scroll-component";
 // import InfiniteScroll from 'react-infinite-scroller';
 import { searchImageByName, ImageObj } from "../../shared/httpService";
+import Gallery, { PhotoClickHandler,  } from "react-photo-gallery";
 // import Gallery from "react-photo-gallery";
-// import { RingLoader } from 'halogenium';
+// import { RingLoader } from 'halogenium'; 
+
+import Lightbox from "react-image-lightbox";
+import "react-image-lightbox/style.css";
+
 
 /**
  * @description Moving to login page by react-router-dom
@@ -50,7 +54,7 @@ function handleNameChange(
     setState: Dispatch<SetStateAction<GalleryState | undefined>>
 ): void {
     let _state: GalleryState = state as GalleryState;
-    _state ? _state.nameToSearch = e.target.value : _state = new GalleryState(e.target.value, [], []);
+    _state ? _state.nameToSearch = e.target.value : _state = new GalleryState(e.target.value, -1, []);
     
     setState(_state);
 }
@@ -105,26 +109,265 @@ const handleImagesLoad = async (
 ): Promise<void> => {
     if (e.code === 'Enter' && state?.nameToSearch.length) {
         console.log(state.nameToSearch);
-        const images: ImageObj[] | undefined = await searchImageByName(state.nameToSearch);
+        const images: ImageObj[] | undefined = await /* searchImageByName(state.nameToSearch) */ [{
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUfQcvjHXO0Xr8vxOxOs1IYQcKgI9kWi8XOw&usqp=CAU',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            thumbnailURL: 'https://cdn.cnn.com/cnnnext/dam/assets/191203174105-edward-whitaker-1-large-169.jpg',
+            width: 1920,
+            height: 1080
+        },
+        {
+            originalURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            thumbnailURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvX64_RjaueucuGMual196Ai7sp6PewhquMg&usqp=CAU',
+            width: 1080,
+            height: 1920
+        }];
         
         // Convert from ImageObj to PhotoSwipeItem
         if (images) {
             console.log('images are: ', images);
-            const photoSwipeItems: PhotoSwipeGalleryItem[] = [];
+            const photoSwipeItems: PhotoGallery[] = [];
 
             for (const imageObj of images) {
                 photoSwipeItems.push({ 
                     src: imageObj.originalURL,
-                    thumbnail: imageObj.thumbnailURL,
-                    w: imageObj.width,
-                    h: imageObj.height
+                    // thumbnail: imageObj.thumbnailURL,
+                    width: imageObj.width,
+                    height: imageObj.height
                 });
             }
             
             setState((state: GalleryState) => {
                 if (state)
-                    return new GalleryState(state.nameToSearch, state.results, photoSwipeItems);
-                return new GalleryState('', [], photoSwipeItems);
+                    return new GalleryState(state.nameToSearch, state.viewPhoto, photoSwipeItems);
+                return new GalleryState('', -1, photoSwipeItems);
             });
         }
     }
@@ -132,7 +375,7 @@ const handleImagesLoad = async (
 
 const GalleryPage = () => {
     const history = useHistory();
-    const [state, setState] = useState<GalleryState>(new GalleryState('', [], []));
+    const [state, setState] = useState<GalleryState>(new GalleryState('', -1, []));
 
     // Similar to componentDidMount and componentDidUpdate
     useEffect(() => {
@@ -163,12 +406,27 @@ const GalleryPage = () => {
                     hasMore={true}
                     loader={<div className="loader" key={0}>Loading ...</div>}
                 > */}
-                    <PhotoSwipeGallery 
+                    {/* <PhotoSwipeGallery 
                         isOpen={false} 
                         items={state?.items} 
                         options={{ closeOnScroll: true, pinchToClose: true }} 
-                        thumbnailContent={getThumbnailContent} />
-                    {/* <Gallery photos={state?.items} /> */}
+                        thumbnailContent={getThumbnailContent} /> */}
+                    {
+                        state?.viewPhoto >= 0 ? 
+                            <Lightbox
+                                mainSrc={state?.items[state?.viewPhoto]?.src}
+                                discourageDownloads={true}
+                                enableZoom={true}
+                                onCloseRequest={() => {setState((state) => { return { ...state, viewPhoto: -1 } }) }}
+                            />
+                        :
+                            <Gallery 
+                                photos={state?.items} 
+                                onClick={(e, photos) => setState((state) => {
+                                    return new GalleryState(state.nameToSearch, photos.index, state.items)
+                                })}
+                            />
+                    }
                 {/* </InfiniteScroll> */}
             </div>
         </div>
@@ -176,15 +434,21 @@ const GalleryPage = () => {
 }
 
 class GalleryState {
-    nameToSearch: string;
-    results: any[];
-    items: any[];
+    constructor(
+        public nameToSearch: string, 
+        public viewPhoto: number, // Image index in items 
+        public items: PhotoGallery[]
+    ) {}
+}
 
-    constructor(nameToSearch: string, results: any[], items: any[]) {
-        this.nameToSearch = nameToSearch;
-        this.results = results;
-        this.items = items;
-    }
+interface PhotoGallery {
+    src: string;
+    srcSet?: string | string[] | undefined;
+    sizes?: string | string[] | undefined;
+    width: number;
+    height: number;
+    alt?: string | undefined;
+    key?: string | undefined;
 }
 
 export default GalleryPage;
