@@ -29,8 +29,8 @@ export const searchImageByName = async (name: string, numResults?: number): Prom
             }
         });
 
-        if (res.status === ResponseStatus.Ok)
-            return res.data.images as ImageObj[];
+        if (res.status === 200)
+            return res.data as ImageObj[];
         throw Error(`searchImage http request ex:`);
     } catch(ex) {
         console.error('searchImage ex', ex);
