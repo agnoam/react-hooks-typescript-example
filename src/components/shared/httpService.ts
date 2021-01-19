@@ -8,32 +8,54 @@ import { Credentials } from "../pages/LoginPage/LoginPage";
  * @description Searching the images by name
  * 
  * @param name The name to search for 
- * @param numResults The number of results you want to get (max of 500)
+ * @param startingPoint The first image index from db
+ * @param batchSize The quantity of the images
  * 
  * @returns A json object with the found images
  */
-export const searchImageByName = async (name: string, numResults?: number): Promise<ImageObj[] | undefined> => {
+export const searchImageByName = async (name: string, startingPoint?: number, batchSize?: number): Promise<ImageObj[] | undefined> => {
     try {
         const credsStr = localStorage.getItem(LocalStorageKeys.Credentials);
         const creds: Credentials = JSON.parse(credsStr || '{}');
 
-        const res: AxiosResponse = await axios.get(`${config.serverURL}/sharepoint-search`, {
+        const res: AxiosResponse = await axios.get(`${config.serverURL}/sharepoint-search/`, {
             headers: {
                 'Accept': 'application/json'
             },
             params: {
+                QUERY: name,
                 username: creds.username, 
                 password: creds.password,
-                QUERY: name,
-                numResults
+                startingPoint, 
+                batchSize
             }
         });
 
-        if (res.status == ResponseStatus.Ok)
+        if (res.status === ResponseStatus.Ok)
             return res.data as ImageObj[];
         throw Error(`searchImage http request ex:`);
     } catch(ex) {
         console.error('searchImage ex', ex);
+    }
+}
+
+export const verifyCredentials = async (creds: Credentials): Promise<boolean> => {
+    try {
+        const credsStr = localStorage.getItem(LocalStorageKeys.Credentials);
+        const creds: Credentials = JSON.parse(credsStr || '{}');
+
+        const res: AxiosResponse = await axios.post(`${config.serverURL}/api/ver-login/`, {
+            username: creds.username, 
+            password: creds.password
+        }, { headers: { 'Accept': 'application/json' } });
+
+        if (res.status === ResponseStatus.Ok)
+            return res.data;
+        else
+            return false;
+    } catch(ex) {
+        console.error('searchImage ex', ex);
+        return false;
     }
 }
 
