@@ -3,11 +3,11 @@ import { Grow, Input, InputAdornment, IconButton } from '@material-ui/core';
 import { Search as SearchIcon, Close as CloseIcon } from '@material-ui/icons';
 import { useState } from 'react';
 
-const clearInput = (setState: React.Dispatch<React.SetStateAction<string>>) => {
-    setState((state: string) => '');
-}
-
 const SearchInput = (props: ISearchInputProps) => {
+    const clearInput = (setState: React.Dispatch<React.SetStateAction<string>>) => {
+        setState((state: string) => '');
+    }
+    
     const [innerText, setInnerText] = useState('');
 
     return (

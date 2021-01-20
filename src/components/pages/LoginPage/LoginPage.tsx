@@ -10,6 +10,29 @@ import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from
 import './LoginPage.scss';
 
 const LoginPage = () => {
+    const validateUsername = (username: string): boolean => {
+        return !!username && username.length > 0;
+    }
+    
+    const validatePassword = (password: string): boolean => {
+        return password.length > 4;
+    }
+    
+    const login = async (creds: Credentials, history: any): Promise<void> => {
+        if (validateUsername(creds.username)) {
+            if (validatePassword(creds.password)) {
+                if (await verifyCredentials(creds)) {
+                    localStorage.setItem(LocalStorageKeys.Credentials, JSON.stringify(creds));
+                    history.push('/gallery');
+                }
+            } else {
+                alert('Please check you password is correct');
+            }
+        } else {
+            alert('Please check again your username');
+        }
+    }
+
     const history = useHistory();
     const defaultCreds: Credentials = { username: '', password: '' };
     const [creds, setCreds] = useState(defaultCreds);
@@ -71,29 +94,6 @@ const LoginPage = () => {
             </div>
         </div>
     );
-}
-
-const validateUsername = (username: string): boolean => {
-    return !!username && username.length > 0;
-}
-
-const validatePassword = (password: string): boolean => {
-    return password.length > 4;
-}
-
-const login = async (creds: Credentials, history: any): Promise<void> => {
-    if (validateUsername(creds.username)) {
-        if (validatePassword(creds.password)) {
-            if (await verifyCredentials(creds)) {
-                localStorage.setItem(LocalStorageKeys.Credentials, JSON.stringify(creds));
-                history.push('/gallery');
-            }
-        } else {
-            alert('Please check you password is correct');
-        }
-    } else {
-        alert('Please check again your username');
-    }
 }
 
 export interface Credentials {
