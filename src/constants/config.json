@@ -1,4 +1,6 @@
 {
-    "baseSite": "http://aissp/sites/Team",
-    "serverURL": "<serverURL>"
+    "serverURL": "<serverURL>",
+    "galleryPage": {
+        "infiniteScrollBatchSize": 30
+    }
 }

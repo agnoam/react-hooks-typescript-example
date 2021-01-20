@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-export const fetchMoreData = (setState: Dispatch<SetStateAction</* GalleryState */ any>>) => {
+const fetchMoreData = (setState: Dispatch<SetStateAction</* GalleryState */ any>>) => {
     // a fake async api call like which sends
     // 3 more records in 1.5 secs
     setTimeout(() => {

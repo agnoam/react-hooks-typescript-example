@@ -7,13 +7,13 @@ import Gallery from "react-photo-gallery";
 import { RingLoader } from 'halogenium'; 
 import InfiniteScroll from "react-infinite-scroller";
 import SearchInput from "./SearchInput/SearchInput";
+import Config from '../../../constants/config.json';
 
 // @ts-ignore 
 import Lightbox from "react-awesome-lightbox";
 
 import './GalleryPage.scss';
 import "react-awesome-lightbox/build/style.css";
-// import { fetchMoreData } from "./GalleryPage.test";
 
 
 /**
@@ -56,13 +56,21 @@ function handleNameChange(
     });
 }
 
+/**
+ * @description The function handles the loading images process from the web service
+ * 
+ * @param state The current state of the app
+ * @param setState The setState function reference
+ * @param startingIndex The index of the first image that will received (optional, used by InfiniteScroll)
+ * @param batchSize The size of the chunk we will receive from the web service (optional)
+ */
 const handleImagesLoad = async (
     state: GalleryState,
     setState: Dispatch<React.SetStateAction<GalleryState>>,
-    startingIndex: number = 0,
+    startingIndex: number,
     batchSize: number = 30
 ): Promise<void> => {
-    if (state?.nameToSearch.length || (startingIndex >= 0 && batchSize > 0)) {
+    if (state?.nameToSearch.length || (state?.nameToSearch.length && startingIndex > 0 && batchSize > 0)) {
         try {
             const images: ImageObj[] | undefined = await searchImageByName(state.nameToSearch, startingIndex, batchSize);
             
@@ -79,7 +87,10 @@ const handleImagesLoad = async (
                 }
                 
                 setState((state: GalleryState) => {
-                    return { ...state, items: newItems }
+                    return startingIndex > 0 && batchSize > 0 ? 
+                        { ...state, items: state.items.concat(newItems) }    
+                    :
+                        { ...state, items: newItems }
                 });
             }
         } catch(ex) {
@@ -89,6 +100,10 @@ const handleImagesLoad = async (
     }
 }
 
+/**
+ * @description Renders the loading spinner icon
+ * @returns Element of the loading spinner
+ */
 const renderLoader = () => {
     return (
         <div className='loader-container'>
@@ -110,8 +125,6 @@ const GalleryPage = () => {
     console.log('state', state);
     return (
         <div className="page-content">
-            <p>GalleryPage</p>
-            
             <SearchInput 
                 onChange={(e) => { 
                     handleNameChange(e, setState);
@@ -121,7 +134,7 @@ const GalleryPage = () => {
             <div className="gallery-container">
                 <InfiniteScroll
                     pageStart={0}
-                    loadMore={() => handleImagesLoad(state, setState)}
+                    loadMore={() => handleImagesLoad(state, setState, state?.items.length - 1, Config.galleryPage.infiniteScrollBatchSize)}
                     hasMore={!!state?.nameToSearch}
                     loader={renderLoader()}>
                     {

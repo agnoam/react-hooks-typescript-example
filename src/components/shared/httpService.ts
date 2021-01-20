@@ -39,11 +39,13 @@ export const searchImageByName = async (name: string, startingPoint?: number, ba
     }
 }
 
+/**
+ * @description Verifing that the username and password is correct
+ * @param creds The user credentials 
+ * @returns The verification status (true/false)
+ */
 export const verifyCredentials = async (creds: Credentials): Promise<boolean> => {
     try {
-        const credsStr = localStorage.getItem(LocalStorageKeys.Credentials);
-        const creds: Credentials = JSON.parse(credsStr || '{}');
-
         const res: AxiosResponse = await axios.post(`${config.serverURL}/api/ver-login/`, {
             username: creds.username, 
             password: creds.password
