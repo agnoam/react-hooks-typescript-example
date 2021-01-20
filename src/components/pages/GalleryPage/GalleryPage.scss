@@ -1,0 +1,35 @@
+.page-content {    
+    #input-container {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .gallery-container {
+        // display: flex;
+        // flex-flow: row wrap;
+
+        // font-size: 100%;
+        // font: inherit;
+        // vertical-align: baseline;
+        
+        // .pswp-thumbnail {
+        //     display: inline-flex;
+        //     flex-wrap: wrap;
+        //     line-height: 0;
+        //     justify-content: center;
+            
+        //     img {
+        //         cursor: pointer;
+        //         height: max-content;
+        //         width: auto;
+        //     }
+        // }
+        text-align: center;
+    }
+
+    .loader-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+}

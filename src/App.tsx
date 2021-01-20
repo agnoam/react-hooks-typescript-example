@@ -1,8 +1,12 @@
+import { ThemeProvider } from "@material-ui/core";
 import { AppRouter } from "./components/pages/AppRouter";
+import { theme } from './styles/themes';
 
 export const App = () => {
   return (
-    <AppRouter />
+    <ThemeProvider theme={theme}>
+      <AppRouter />
+    </ThemeProvider>
   );
 }
 
