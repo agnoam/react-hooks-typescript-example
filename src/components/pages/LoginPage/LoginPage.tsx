@@ -39,7 +39,7 @@ const LoginPage = () => {
     const [passwordVisibility, setPasswordVisibility] = useState(false);
 
     return (
-        <div className="page-container">
+        <div className="page-container" data-testid="login-page">
             <div id="login-card">
                 <img src="https://icon-library.net//images/company-icon/company-icon-24.jpg" alt="" />
                 <h3 className="title">Welcome</h3>

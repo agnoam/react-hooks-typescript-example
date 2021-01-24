@@ -35,7 +35,7 @@ export const searchImageByName = async (name: string, startingPoint?: number, ba
             return res.data as ImageObj[];
         throw Error(`searchImage http request ex:`);
     } catch(ex) {
-        console.error('searchImage ex', ex);
+        console.error('searchImageByName ex', ex);
     }
 }
 
@@ -52,11 +52,11 @@ export const verifyCredentials = async (creds: Credentials): Promise<boolean> =>
         }, { headers: { 'Accept': 'application/json' } });
 
         if (res.status === ResponseStatus.Ok)
-            return res.data;
+            return res.data.success;
         else
             return false;
     } catch(ex) {
-        console.error('searchImage ex', ex);
+        console.error('verifyCredentials ex', ex);
         return false;
     }
 }

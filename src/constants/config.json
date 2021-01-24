@@ -1,5 +1,5 @@
 {
-    "serverURL": "<serverURL>",
+    "serverURL": "",
     "galleryPage": {
         "infiniteScrollBatchSize": 30
     }

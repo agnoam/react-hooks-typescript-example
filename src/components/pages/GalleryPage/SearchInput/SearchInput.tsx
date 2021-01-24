@@ -16,6 +16,8 @@ const SearchInput = (props: ISearchInputProps) => {
             <Grow in={true}>
                 <Input 
                     id="name-input"
+                    aria-label='searchbox'
+                    data-test-id='name-searchbox'
                     placeholder="Search"
                     value={innerText}
                     autoFocus={true}
@@ -42,8 +44,8 @@ const SearchInput = (props: ISearchInputProps) => {
 }
 
 export interface ISearchInputProps {
-    onKeyDown?: (e: any) => void;
-    onChange: (e: any) => void;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
 }
 
 

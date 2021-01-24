@@ -97,7 +97,7 @@ const GalleryPage = () => {
     }
 
     const history = useHistory();
-    const [state, setState] = useState<GalleryState>(new GalleryState('', -1, []));
+    const [state, setState] = useState<GalleryState>({ nameToSearch: '', viewPhoto: -1, items: [] });
 
     // Similar to componentDidMount and componentDidUpdate
     useEffect(() => {
@@ -108,11 +108,9 @@ const GalleryPage = () => {
     console.log('state', state);
     return (
         <div className="page-content">
-            <SearchInput 
-                onChange={(e) => { 
-                    handleNameChange(e);
-                    handleImagesLoad(e);
-                }} />
+            <SearchInput
+                onKeyDown={(e) => e.code.toUpperCase() === 'ENTER' && handleImagesLoad(0)}
+                onChange={(e) => handleNameChange(e)} />
             
             <div className="gallery-container">
                 <InfiniteScroll
@@ -132,11 +130,11 @@ const GalleryPage = () => {
                                 }} />
                         :
                             state?.items.length && state?.nameToSearch ?
-                                <Gallery 
+                                <Gallery
                                     photos={state?.items} 
                                     onClick={(e, photos) => setState((state) => {
                                         console.log(photos.index);
-                                        return new GalleryState(state.nameToSearch, photos.index, state.items)
+                                        return { ...state, viewPhoto: photos.index }
                                     })}
                                 />
                             :
@@ -148,12 +146,10 @@ const GalleryPage = () => {
     );
 }
 
-class GalleryState {
-    constructor(
-        public nameToSearch: string, 
-        public viewPhoto: number, // Image index in items 
-        public items: PhotoGallery[]
-    ) {}
+interface GalleryState {
+    nameToSearch: string;
+    viewPhoto: number; // Image index in items 
+    items: PhotoGallery[];
 }
 
 interface PhotoGallery {
