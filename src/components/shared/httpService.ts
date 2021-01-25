@@ -57,7 +57,7 @@ export const verifyCredentials = async (creds: Credentials): Promise<boolean> =>
             return false;
     } catch(ex) {
         console.error('verifyCredentials ex', ex);
-        return false;
+        throw ex;
     }
 }
 
