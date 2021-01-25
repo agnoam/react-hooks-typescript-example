@@ -1,50 +1,84 @@
 import React, { useState } from "react";
 import { useHistory } from 'react-router-dom';
 import { LocalStorageKeys } from "../../../constants/localStorage.keys";
-import { FormControl, InputLabel, Input, Button } from '@material-ui/core';
+import { FormControl, InputLabel, Input, Button, Snackbar, Slide } from '@material-ui/core';
 import { verifyCredentials } from "../../shared/httpService";
 import InputAdornment from "@material-ui/core/InputAdornment/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from "@material-ui/icons";
+import { Alert } from '@material-ui/lab';
 
 import './LoginPage.scss';
+import { TransitionProps } from "@material-ui/core/transitions";
 
 const LoginPage = () => {
     const validateUsername = (username: string): boolean => {
-        return !!username && username.length > 0;
+        const validated: boolean = !!username && username.length > 0;
+        setFormValidation((formValidation: Validation) => { return { ...formValidation, username: validated } });
+        return validated;
     }
     
     const validatePassword = (password: string): boolean => {
-        return password.length > 4;
+        const validated: boolean = password.length > 4;
+        setFormValidation((formValidation: Validation) => { return { ...formValidation, password: validated } });
+        return validated;
     }
     
     const login = async (creds: Credentials, history: any): Promise<void> => {
-        if (validateUsername(creds.username)) {
-            if (validatePassword(creds.password)) {
-                if (await verifyCredentials(creds)) {
-                    localStorage.setItem(LocalStorageKeys.Credentials, JSON.stringify(creds));
-                    history.push('/gallery');
+        try {
+            if (validateUsername(creds.username)) {
+                if (validatePassword(creds.password)) {
+                    if (await verifyCredentials(creds)) {
+                        localStorage.setItem(LocalStorageKeys.Credentials, JSON.stringify(creds));
+                        history.push('/gallery');
+                    } else {
+                        setFormValidation((formValidation: Validation) => { return { password: false, username: false } });
+                        setLoginFailedTitle('This username or password is not correct');
+                    }
+                } else {
+                    setFormValidation((formValidation: Validation) => { return { ...formValidation, password: false } });
+                    setLoginFailedTitle('This password is not valid');
                 }
             } else {
-                alert('Please check you password is correct');
+                setFormValidation((formValidation: Validation) => { return { ...formValidation, username: false } });
+                setLoginFailedTitle('This Username is not valid');
             }
-        } else {
-            alert('Please check again your username');
+        } catch(ex) {
+            setFormValidation((formValidation: Validation) => { return { password: false, username: false } });
+            setLoginFailedTitle('Cannot sign in currently, Please try again later');
         }
     }
 
     const history = useHistory();
     const defaultCreds: Credentials = { username: '', password: '' };
+    
     const [creds, setCreds] = useState(defaultCreds);
     const [passwordVisibility, setPasswordVisibility] = useState(false);
+    const [formValidation, setFormValidation] = useState({ username: false, password: false });
+    const [loginFailedTitle, setLoginFailedTitle] = useState('');
 
     return (
         <div className="page-container" data-testid="login-page">
+            {
+                // loginFailed ?
+                    <Snackbar
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        open={!!loginFailedTitle}
+                        onClose={() => setLoginFailedTitle((state) => '')}
+                        key={'top center'}
+                        TransitionComponent={(props: TransitionProps) => {
+                            return <Slide {...props} direction="up" />;
+                        }}>
+                            <Alert /* variant="outlined" */ severity="error" >{loginFailedTitle}</Alert>
+                        </Snackbar>
+                // :
+                //     <div></div>
+            }
             <div id="login-card">
                 <img src="https://icon-library.net//images/company-icon/company-icon-24.jpg" alt="" />
                 <h3 className="title">Welcome</h3>
 
-                <FormControl className="input-ctrl">    
+                <FormControl className="input-ctrl" error={formValidation.username}>    
                     <InputLabel htmlFor="username-input">Username</InputLabel>
                     <Input 
                         autoFocus
@@ -58,7 +92,7 @@ const LoginPage = () => {
                 </FormControl>
                 
                 <br></br>
-                <FormControl className="input-ctrl">
+                <FormControl className="input-ctrl" error={formValidation.password}>
                     <InputLabel htmlFor="password-input">Password</InputLabel>
                     <Input 
                         id="password-input" 
@@ -94,6 +128,11 @@ const LoginPage = () => {
             </div>
         </div>
     );
+}
+
+interface Validation {
+    username: boolean;
+    password: boolean;
 }
 
 export interface Credentials {
