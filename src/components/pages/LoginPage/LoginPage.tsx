@@ -7,9 +7,9 @@ import InputAdornment from "@material-ui/core/InputAdornment/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import { Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon } from "@material-ui/icons";
 import { Alert } from '@material-ui/lab';
+import { TransitionProps } from "@material-ui/core/transitions";
 
 import './LoginPage.scss';
-import { TransitionProps } from "@material-ui/core/transitions";
 
 const LoginPage = () => {
     const validateUsername = (username: string): boolean => {

@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { LocalStorageKeys } from "../../../constants/localStorage.keys";
 import { Credentials } from "../LoginPage/LoginPage";
-import { searchImageByName, ImageObj } from "../../shared/httpService";
+import { ImageObj, searchImageByName } from "../../shared/httpService";
 import Gallery from "react-photo-gallery";
 import { RingLoader } from 'halogenium'; 
 import InfiniteScroll from "react-infinite-scroller";
@@ -41,7 +41,6 @@ export const getCreds = (): Credentials => {
 const GalleryPage = () => {
     /**
      * @description Handles the image search
-     * 
      * @param e The `$event` from the onChange funciton of the input
      */
     function handleNameChange(e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void {
@@ -59,7 +58,7 @@ const GalleryPage = () => {
     const handleImagesLoad = async (startingIndex: number, batchSize: number = 30): Promise<void> => {
         if (state?.nameToSearch.length || (state?.nameToSearch.length && startingIndex > 0 && batchSize > 0)) {
             try {
-                const images: ImageObj[] | undefined = await searchImageByName(state.nameToSearch, startingIndex, batchSize);
+                const images: ImageObj[] = await searchImageByName(state.nameToSearch, startingIndex, batchSize);
                 
                 // Convert from ImageObj to PhotoItem
                 if (images) {
@@ -72,14 +71,14 @@ const GalleryPage = () => {
                     
                     setState((state: GalleryState) => {
                         return startingIndex > 0 && batchSize > 0 ? 
-                            { ...state, items: state.items.concat(newItems) }    
+                            { ...state, items: state.items.concat(newItems), isDone: !newItems.length }    
                         :
-                            { ...state, items: newItems }
+                            { ...state, items: newItems, isDone: !newItems.length }
                     });
                 }
             } catch(ex) {
-                // setState((state) => )
                 console.error(ex);
+                // TODO: Check what error occurd and show appropriate error message
             }
         }
     }
@@ -91,13 +90,13 @@ const GalleryPage = () => {
     const renderLoader = () => {
         return (
             <div className='loader-container'>
-                <RingLoader size='25px' color='#26A65B' />
+                <RingLoader size='35px' color='#26A65B' />
             </div>
         );
     }
 
     const history = useHistory();
-    const [state, setState] = useState<GalleryState>({ nameToSearch: '', viewPhoto: -1, items: [] });
+    const [state, setState] = useState<GalleryState>({ nameToSearch: '', viewPhoto: -1, items: [], isDone: true });
 
     // Similar to componentDidMount and componentDidUpdate
     useEffect(() => {
@@ -105,18 +104,18 @@ const GalleryPage = () => {
         if (!creds || !creds.username || !creds.password) moveToLoginPage(history);
     }, [history]);
 
-    console.log('state', state);
     return (
         <div className="page-content">
             <SearchInput
-                onKeyDown={(e) => e.code.toUpperCase() === 'ENTER' && handleImagesLoad(0)}
-                onChange={(e) => handleNameChange(e)} />
+                onKeyDown={(e) => e.code.toUpperCase() === 'ENTER' && handleImagesLoad(0) }
+                onChange={(e) => handleNameChange(e)} 
+                onClear={() => setState((state) => { return { ...state, items: [] } })} />
             
             <div className="gallery-container">
                 <InfiniteScroll
                     pageStart={0}
-                    loadMore={() => handleImagesLoad(state?.items.length - 1, Config.galleryPage.infiniteScrollBatchSize)}
-                    hasMore={!!state?.nameToSearch}
+                    loadMore={() => handleImagesLoad(state?.items.length, Config.galleryPage.infiniteScrollBatchSize)}
+                    hasMore={!!state?.nameToSearch && !state?.isDone}
                     loader={renderLoader()}>
                     {
                         state?.viewPhoto >= 0 ? 
@@ -150,6 +149,7 @@ interface GalleryState {
     nameToSearch: string;
     viewPhoto: number; // Image index in items 
     items: PhotoGallery[];
+    isDone: boolean; // All images loaded
 }
 
 interface PhotoGallery {
