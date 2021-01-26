@@ -12,7 +12,6 @@ const SearchInput = (props: ISearchInputProps) => {
 
     return (
         <div id="input-container">
-            {/* <InputLabel htmlFor="name-input"></InputLabel> */}
             <Grow in={true}>
                 <Input 
                     id="name-input"
@@ -33,7 +32,10 @@ const SearchInput = (props: ISearchInputProps) => {
                     }
                     endAdornment={
                         <InputAdornment position='end'>
-                            <IconButton disabled={!innerText} onClick={() => clearInput(setInnerText)}>
+                            <IconButton disabled={!innerText} onClick={() => {
+                                clearInput(setInnerText);
+                                props?.onClear && props.onClear();
+                            }}>
                                 <CloseIcon />
                             </IconButton>
                         </InputAdornment>
@@ -44,8 +46,9 @@ const SearchInput = (props: ISearchInputProps) => {
 }
 
 export interface ISearchInputProps {
-    onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+    onClear?: () => void;
 }
 
 

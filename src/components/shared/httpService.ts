@@ -13,30 +13,27 @@ import { Credentials } from "../pages/LoginPage/LoginPage";
  * 
  * @returns A json object with the found images
  */
-export const searchImageByName = async (name: string, startingPoint?: number, batchSize?: number): Promise<ImageObj[] | undefined> => {
-    try {
-        const credsStr = localStorage.getItem(LocalStorageKeys.Credentials);
-        const creds: Credentials = JSON.parse(credsStr || '{}');
+export const searchImageByName = async (name: string, startingPoint?: number, batchSize?: number): Promise<ImageObj[]> => {
+    const credsStr = localStorage.getItem(LocalStorageKeys.Credentials);
+    const creds: Credentials = JSON.parse(credsStr || '{}');
 
-        const res: AxiosResponse = await axios.get(`${config.serverURL}/sharepoint-search/`, {
-            headers: {
-                'Accept': 'application/json'
-            },
-            params: {
-                QUERY: name,
-                username: creds.username, 
-                password: creds.password,
-                startingPoint, 
-                batchSize
-            }
-        });
+    const res: AxiosResponse = await axios.get(`${config.serverURL}/sharepoint-search/`, {
+        headers: {
+            'Accept': 'application/json'
+        },
+        params: {
+            QUERY: name,
+            username: creds.username, 
+            password: creds.password,
+            startingPoint, 
+            batchSize
+        }
+    });
 
-        if (res.status === ResponseStatus.Ok)
-            return res.data as ImageObj[];
-        throw Error(`searchImage http request ex:`);
-    } catch(ex) {
-        console.error('searchImageByName ex', ex);
-    }
+    if (res.status === ResponseStatus.Ok)
+        return res.data as ImageObj[];
+
+    throw Error(`searchImageByName http request ex:`);
 }
 
 /**
