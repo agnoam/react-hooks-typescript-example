@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { LocalStorageKeys } from "../../../constants/localStorage.keys";
 import { Credentials } from "../LoginPage/LoginPage";
@@ -8,12 +8,15 @@ import { RingLoader } from 'halogenium';
 import InfiniteScroll from "react-infinite-scroller";
 import SearchInput from "./SearchInput/SearchInput";
 import Config from '../../../constants/config.json';
+import SelectedImage from "./SelectedImage/SelectedImage";
+import { MoreVert as MoreVertIcon } from '@material-ui/icons';
 
 // @ts-ignore 
 import Lightbox from "react-awesome-lightbox";
 
 import './GalleryPage.scss';
 import "react-awesome-lightbox/build/style.css";
+import { AppBar, createStyles, FormControlLabel, IconButton, makeStyles, Menu, MenuItem, Theme, Toolbar, Typography } from "@material-ui/core";
 
 /**
  * @description Moving to login page by react-router-dom
@@ -38,6 +41,20 @@ export const getCreds = (): Credentials => {
     }
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1,
+    },
+    menuButton: {
+      marginRight: theme.spacing(2),
+    },
+    title: {
+      flexGrow: 1,
+    }
+  })
+);
+
 const GalleryPage = () => {
     /**
      * @description Handles the image search
@@ -58,7 +75,45 @@ const GalleryPage = () => {
     const handleImagesLoad = async (startingIndex: number, batchSize: number = 30): Promise<void> => {
         if (state?.nameToSearch.length || (state?.nameToSearch.length && startingIndex > 0 && batchSize > 0)) {
             try {
-                const images: ImageObj[] = await searchImageByName(state.nameToSearch, startingIndex, batchSize);
+                // const images: ImageObj[] = await searchImageByName(state.nameToSearch, startingIndex, batchSize);
+                const images: ImageObj[] = [
+                    {
+                        originalURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        thumbnailURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        width: 1920,
+                        height: 1080
+                    },
+                    {
+                        originalURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        thumbnailURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        width: 1920,
+                        height: 1080
+                    },
+                    {
+                        originalURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        thumbnailURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        width: 1920,
+                        height: 1080
+                    },
+                    {
+                        originalURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        thumbnailURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        width: 1920,
+                        height: 1080
+                    },
+                    {
+                        originalURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        thumbnailURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        width: 1920,
+                        height: 1080
+                    },
+                    {
+                        originalURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        thumbnailURL: 'https://static.toiimg.com/photo/72975551.cms',
+                        width: 1920,
+                        height: 1080
+                    }
+                ]
                 
                 // Convert from ImageObj to PhotoItem
                 if (images) {
@@ -95,8 +150,26 @@ const GalleryPage = () => {
         );
     }
 
+    const classes = useStyles();
     const history = useHistory();
     const [state, setState] = useState<GalleryState>({ nameToSearch: '', viewPhoto: -1, items: [], isDone: true });
+    const [selectAll, setSelectAll] = useState(false); // TODO: Remove select all
+    
+    // TODO: REMOVE
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const handleMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+
+    const imageRenderer = useCallback(({ index, left, top, key, photo }) => (
+        <SelectedImage
+            selected={selectAll}
+            key={key}
+            margin={"2px"}
+            index={index}
+            photo={photo}
+            left={left}
+            top={top} />
+    ), [selectAll]);
 
     // Similar to componentDidMount and componentDidUpdate
     useEffect(() => {
@@ -106,8 +179,49 @@ const GalleryPage = () => {
 
     return (
         <div className="page-content">
+            {/* TODO: Add appbar, multi select mode, logout button, download */}
+            <AppBar position="static">
+                <Toolbar>
+                    <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+                        {/* <MenuIcon /> */}<div></div>
+                    </IconButton>
+                    <Typography variant="h6" className={classes.title}>Photos</Typography>
+                    <div>
+                        <IconButton
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleMenu}
+                            color="inherit">
+                            <MoreVertIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left'
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left'
+                            }}
+                            open={!!anchorEl}
+                            onClose={() => handleClose()}>
+                            <MenuItem onClick={() => handleClose()}>
+                                {/* <FormControlLabel
+                                    control={<Checkbox checked={antoine} onChange={handleChange} name="antoine" />}
+                                    label="Multi selection mode" /> */}
+                            </MenuItem>
+                            <MenuItem onClick={() => handleClose()}>Logout</MenuItem>
+                        </Menu>
+                    </div>
+                </Toolbar>
+            </AppBar>
+            
             <SearchInput
-                onKeyDown={(e) => e.code.toUpperCase() === 'ENTER' && handleImagesLoad(0) }
+                onKeyDown={(e) => (e.code === 'Enter' || e.code as string === 'NumpadEnter') && handleImagesLoad(0) }
                 onChange={(e) => handleNameChange(e)} 
                 onClear={() => setState((state) => { return { ...state, items: [] } })} />
             
@@ -118,26 +232,31 @@ const GalleryPage = () => {
                     hasMore={!!state?.nameToSearch && !state?.isDone}
                     loader={renderLoader()}>
                     {
-                        state?.viewPhoto >= 0 ? 
-                            <Lightbox
-                                startIndex={state.viewPhoto}
-                                images={state.items.map((item) => item.src)}
-                                onClose={() => {
-                                    setState((state) => { 
-                                        return { ...state, viewPhoto: -1 } 
-                                    });
-                                }} />
-                        :
-                            state?.items.length && state?.nameToSearch ?
+                        state?.items.length && state?.nameToSearch ?
+                            <div>
+                                { state?.viewPhoto >= 0 ?
+                                    <Lightbox
+                                        startIndex={state.viewPhoto}
+                                        images={state.items.map((item) => item.src)}
+                                        onClose={() => {
+                                            setState((state) => { 
+                                                return { ...state, viewPhoto: -1 } 
+                                            });
+                                        }} />
+                                :
+                                    <div></div> }
+
                                 <Gallery
                                     photos={state?.items} 
+                                    renderImage={imageRenderer}
                                     onClick={(e, photos) => setState((state) => {
                                         console.log(photos.index);
                                         return { ...state, viewPhoto: photos.index }
                                     })}
                                 />
-                            :
-                                <p className='nothing-to-show-subtitle'>There is nothing to show</p>
+                            </div>
+                        :
+                            <p className='nothing-to-show-subtitle'>There is nothing to show</p>
                     }
                 </InfiniteScroll>
             </div>
@@ -152,14 +271,15 @@ interface GalleryState {
     isDone: boolean; // All images loaded
 }
 
-interface PhotoGallery {
+export interface PhotoGallery {
     src: string;
-    srcSet?: string | string[] | undefined;
-    sizes?: string | string[] | undefined;
     width: number;
     height: number;
+    srcSet?: string | string[] | undefined;
+    sizes?: string | string[] | undefined;
     alt?: string | undefined;
     key?: string | undefined;
+    title?: string | undefined;
 }
 
 export default GalleryPage;

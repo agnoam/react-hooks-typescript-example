@@ -87,7 +87,7 @@ const LoginPage = () => {
                         aria-describedby="username-text-input" 
                         onChange={(e) => setCreds({ username: e.target.value as string, password: creds.password })}
                         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-                            (creds.username.length && creds.password.length > 4 && e.code === 'Enter') && login(creds, history) 
+                            (creds.username.length && creds.password.length > 4 && (e.code === 'Enter' || e.code === 'NumpadEnter')) && login(creds, history) 
                         }} />
                 </FormControl>
                 
@@ -113,7 +113,7 @@ const LoginPage = () => {
                         }
                         onChange={(e) => setCreds({ username: creds.username, password: e.target.value as string })}
                         onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-                            (creds.username.length && creds.password.length > 4 && e.code === 'Enter') && login(creds, history) 
+                            ((creds.username.length && creds.password.length > 4) && (e.code === 'Enter' || e.code === 'NumpadEnter')) && login(creds, history) 
                         }} />
                 </FormControl>
                 

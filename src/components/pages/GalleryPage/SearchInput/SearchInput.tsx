@@ -49,6 +49,7 @@ export interface ISearchInputProps {
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
     onClear?: () => void;
+    onEnter?: () => void;
 }
 
 
