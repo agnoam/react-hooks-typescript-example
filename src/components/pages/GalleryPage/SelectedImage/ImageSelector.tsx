@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { PhotoGallery } from '../GalleryPage';
 
-const Checkmark = (props: { selected: boolean }) => {
+const Checkmark = (props: { selected: boolean, onVClicked: (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => void }) => {
     return (
         <div
             style={
@@ -11,6 +11,7 @@ const Checkmark = (props: { selected: boolean }) => {
                     { display: "none" }) as React.CSSProperties
             }>
                 <svg
+                    onClick={props.onVClicked}
                     style={{ fill: "white", position: "absolute" }}
                     width="24px"
                     height="24px">
@@ -70,14 +71,14 @@ const SelectedImage = (props: ISelectedImageProps) => {
       style={{ margin: props.margin, height: photo.height, width: photo.width, ...cont } as React.CSSProperties }
       className={!isSelected ? "not-selected" : ""}>
 
-        <Checkmark selected={isSelected} />
+        {/* <Checkmark selected={isSelected} onVClicked={(e) => handleOnClick(e)} /> */}
         <img
             alt={photo?.title || ''}
             style={ isSelected ? { ...imgStyle, ...selectedImgStyle } : { ...imgStyle } }
             width={photo.width}
             height={photo.height}
             src={photo.src}
-            onClick={(e) => handleOnClick(e)}
+            //  onClick={(e) => handleOnClick(e)}
         />
         <style>{`.not-selected:hover{outline:2px solid #06befa}`}</style>
     </div>
