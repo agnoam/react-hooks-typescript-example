@@ -8,7 +8,7 @@ import { RingLoader } from 'halogenium';
 import InfiniteScroll from "react-infinite-scroller";
 import SearchInput from "./SearchInput/SearchInput";
 import Config from '../../../constants/config.json';
-import SelectedImage from "./SelectedImage/ImageSelector";
+import SelectedImage from "./ImageSelector/ImageSelector";
 import { ExitToApp as ExitToAppIcon } from '@material-ui/icons';
 
 // @ts-ignore 
@@ -176,6 +176,8 @@ const GalleryPage = () => {
 
     const imageRenderer = useCallback(({ index, left, top, key, photo }) => (
         <SelectedImage
+            onOpened={() => console.log('open')}
+            onSelected={() => console.log('selected')}
             selected={true}
             key={key}
             margin={"2px"}
