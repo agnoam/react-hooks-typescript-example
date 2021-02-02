@@ -15,17 +15,15 @@ const StickyAppBar = (props: IHideOnScrollProps) => {
         }
     }, []);
 
-    console.log('yPosition', yPosition);
-
     return (
-            yPosition >= 100 ?
-                <Slide appear={true} direction="up" in={yPosition >= 100}>
-                    {header}
-                </Slide>
-            :
-                <Slide appear={false} direction="down" in={yPosition < 100}>
-                    {children}
-                </Slide>
+        yPosition >= 100 ?
+            <Slide appear={true} direction="up" in={yPosition >= 100}>
+                {header}
+            </Slide>
+        :
+            <Slide appear={false} direction="down" in={yPosition < 100}>
+                {children}
+            </Slide>
     );
 }
 

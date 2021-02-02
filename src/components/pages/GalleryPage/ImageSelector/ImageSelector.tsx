@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Checkbox } from "@material-ui/core";
+import { Checkbox, makeStyles } from "@material-ui/core";
 import { PhotoGallery } from '../GalleryPage';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
 // import CircleCheckedFilled from '@material-ui/icons/CheckCircle';
@@ -9,7 +9,7 @@ import CircleUnchecked from '@material-ui/icons/RadioButtonUnchecked';
 function useHover() {
     const [value, setValue] = useState(false);
   
-    const ref: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement | null>(null);
+    const ref: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   
     const handleMouseOver = () => setValue(true);
     const handleMouseOut = () => setValue(false);
@@ -30,11 +30,23 @@ function useHover() {
     return [ref, value];
 }
 
-const SelectedImage = (props: ISelectedImageProps) => {
+const useStyles = makeStyles({
+    hiddenOverlay: {
+        visibility: 'hidden'
+    },
+    overlay: {
+        width: '100%',
+        height: '100%',
+        background: 'linear-gradient(90deg, rgba(0,0,0,0.48575512618296535) 0%, rgba(255,255,255,1) 100%, rgba(0,212,255,1) 100%);'
+    }
+});
+
+const ImageSelector = (props: IImageSelectorProps) => {
+    const classes = useStyles();
     const [isSelected, setIsSelected] = useState(props.selected);
     const photo = props.photo;
 
-    const handleOnClick = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
+    const handleOnClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setIsSelected(!isSelected);
     }
 
@@ -46,15 +58,17 @@ const SelectedImage = (props: ISelectedImageProps) => {
 
     return (
         <div
-            ref={hoverRef}
+            ref={(hoverRef as React.RefObject<HTMLDivElement>)}
             style={{ margin: props.margin, height: photo.height, width: photo.width } as React.CSSProperties }
             className={!isSelected ? "not-selected" : ""}>
-            
             { 
-                isHovered &&
+                <div className={isHovered ? classes.overlay : classes.hiddenOverlay } ref={(hoverRef as React.RefObject<HTMLDivElement>)}>
                     <Checkbox 
                         icon={<CircleUnchecked />}
-                        checkedIcon={<CircleChecked />} />
+                        checkedIcon={<CircleChecked />}
+                        checked={isSelected}
+                        onClick={handleOnClick} />
+                </div>
             }
             
             <img
@@ -63,18 +77,16 @@ const SelectedImage = (props: ISelectedImageProps) => {
                 width={photo.width}
                 height={photo.height}
                 src={photo.src}
-                //  onClick={(e) => handleOnClick(e)}
-            />
-            <style>{`.not-selected:hover{outline:2px solid #06befa}`}</style>
+                onClick={(e) => props.onOpened(props.index)} />
         </div>
     );
 }
 
-export default SelectedImage;
+export default ImageSelector;
 
-export interface ISelectedImageProps {
-    onSelected: () => void; // Clicked on the checkbox
-    onOpened: () => void; // Clicked on the image
+export interface IImageSelectorProps {
+    onSelected: (photoIndex: number) => void; // Clicked on the checkbox
+    onOpened: (photoIndex: number) => void; // Clicked on the image
 
     index: number;
     photo: PhotoGallery;

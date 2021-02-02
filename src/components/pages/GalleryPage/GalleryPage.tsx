@@ -8,16 +8,17 @@ import { RingLoader } from 'halogenium';
 import InfiniteScroll from "react-infinite-scroller";
 import SearchInput from "./SearchInput/SearchInput";
 import Config from '../../../constants/config.json';
-import SelectedImage from "./ImageSelector/ImageSelector";
+import ImageSelector from "./ImageSelector/ImageSelector";
 import { ExitToApp as ExitToAppIcon } from '@material-ui/icons';
+import { AppBar, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from "@material-ui/core";
+import StickyAppBar from "./HideOnScroll/StickyAppBar";
+import configs from '../../../constants/config.json';
 
 // @ts-ignore 
 import Lightbox from "react-awesome-lightbox";
 
 import './GalleryPage.scss';
 import "react-awesome-lightbox/build/style.css";
-import { AppBar, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from "@material-ui/core";
-import StickyAppBar from "./HideOnScroll/StickyAppBar";
 
 /**
  * @description Moving to login page by react-router-dom
@@ -51,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: theme.spacing(2),
     },
     banner: {
-        background: `url(https://www.nist.gov/sites/default/files/images/2019/04/02/nistcyber_banner-11.19.18-am.png)`,
+        background: `url(${configs.galleryPage.bannerURL})`,
         backgroundRepeat: 'no-repeat, repeat',
         height: '150px'
     },
@@ -175,10 +176,10 @@ const GalleryPage = () => {
     });
 
     const imageRenderer = useCallback(({ index, left, top, key, photo }) => (
-        <SelectedImage
+        <ImageSelector
             onOpened={() => console.log('open')}
             onSelected={() => console.log('selected')}
-            selected={true}
+            selected={false}
             key={key}
             margin={"2px"}
             index={index}
@@ -259,7 +260,7 @@ const GalleryPage = () => {
 
                                 <Gallery
                                     photos={state?.items} 
-                                    // renderImage={state?.selectionMode ? imageRenderer : undefined}
+                                    // renderImage={/* state?.selectionMode ? */ imageRenderer/* : undefined */}
                                     onClick={(e, photos) => setState((state) => {
                                         console.log(photos.index);
                                         return { ...state, viewPhoto: photos.index }

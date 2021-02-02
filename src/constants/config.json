@@ -1,6 +1,7 @@
 {
     "serverURL": "",
     "galleryPage": {
-        "infiniteScrollBatchSize": 30
+        "infiniteScrollBatchSize": 30,
+        "bannerURL": "https://www.nist.gov/sites/default/files/images/2019/04/02/nistcyber_banner-11.19.18-am.png"
     }
 }
