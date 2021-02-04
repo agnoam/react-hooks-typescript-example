@@ -177,7 +177,10 @@ const GalleryPage = () => {
 
     const imageRenderer = useCallback(({ index, left, top, key, photo }) => (
         <ImageSelector
-            onOpened={() => console.log('open')}
+            onOpened={(index: number) => {
+                console.log('openning: ', index);
+                setState({ ...state, viewPhoto: index });
+            }}
             onSelected={() => console.log('selected')}
             selected={false}
             key={key}
@@ -212,15 +215,16 @@ const GalleryPage = () => {
 
     const renderBanner = () => {
         return (
-            <AppBar color="transparent" 
-                className={classes.banner}>
-                <SearchInput
-                    className={classes.bannerSearch}
-                    initValue={state?.nameToSearch || ''}
-                    inputStyle={{ backgroundColor: "white" }}
-                    onKeyDown={(e) => (e.code === 'Enter' || e.code as string === 'NumpadEnter') && handleImagesLoad(0) }
-                    onChange={(e) => handleNameChange(e)} 
-                    onClear={() => setState((state) => { return { ...state, items: [] } })} />
+            <AppBar color="transparent">
+                    <Toolbar className={classes.banner}>
+                        <SearchInput
+                            className={classes.bannerSearch}
+                            initValue={state?.nameToSearch || ''}
+                            inputStyle={{ backgroundColor: "white" }}
+                            onKeyDown={(e) => (e.code === 'Enter' || e.code as string === 'NumpadEnter') && handleImagesLoad(0) }
+                            onChange={(e) => handleNameChange(e)} 
+                            onClear={() => setState((state) => { return { ...state, items: [] } })} />
+                    </Toolbar>
             </AppBar>
         );
     }
@@ -260,7 +264,7 @@ const GalleryPage = () => {
 
                                 <Gallery
                                     photos={state?.items} 
-                                    // renderImage={/* state?.selectionMode ? */ imageRenderer/* : undefined */}
+                                    renderImage={/* state?.selectionMode ? */ imageRenderer/* : undefined */}
                                     onClick={(e, photos) => setState((state) => {
                                         console.log(photos.index);
                                         return { ...state, viewPhoto: photos.index }

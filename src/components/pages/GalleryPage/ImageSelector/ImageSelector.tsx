@@ -1,83 +1,77 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Checkbox, makeStyles } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import { Checkbox, makeStyles, Theme } from "@material-ui/core";
 import { PhotoGallery } from '../GalleryPage';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
 // import CircleCheckedFilled from '@material-ui/icons/CheckCircle';
 import CircleUnchecked from '@material-ui/icons/RadioButtonUnchecked';
 
-// Hook
-function useHover() {
-    const [value, setValue] = useState(false);
-  
-    const ref: React.RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-  
-    const handleMouseOver = () => setValue(true);
-    const handleMouseOut = () => setValue(false);
-  
-    useEffect(() => {
-        const node = ref.current;
-        if (node) {
-          node.addEventListener('mouseover', handleMouseOver);
-          node.addEventListener('mouseout', handleMouseOut);
-  
-          return () => {
-            node.removeEventListener('mouseover', handleMouseOver);
-            node.removeEventListener('mouseout', handleMouseOut);
-          }
-        }
-      }, [ref.current]);  // Recall only if ref changes
-  
-    return [ref, value];
-}
-
-const useStyles = makeStyles({
+const useStyles = makeStyles<Theme, IImageSelectorProps>({
     hiddenOverlay: {
         visibility: 'hidden'
     },
     overlay: {
-        width: '100%',
-        height: '100%',
-        background: 'linear-gradient(90deg, rgba(0,0,0,0.48575512618296535) 0%, rgba(255,255,255,1) 100%, rgba(0,212,255,1) 100%);'
+        marginBottom: '50px',
+        width: (props) => `${props.photo.width}px`,
+        height: (props) => `${props.photo.height}px`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundImage: (props) => `linear-gradient(to bottom, lightgray, transparent), url(${props.photo.src});`,
+        display: 'flex'
+    },
+    checkbox: {
+        display: 'flex',
+        alignItems: 'start',
+        height: '25px'
     }
 });
 
 const ImageSelector = (props: IImageSelectorProps) => {
-    const classes = useStyles();
+    const classes = useStyles(props);
     const [isSelected, setIsSelected] = useState(props.selected);
     const photo = props.photo;
 
     const handleOnClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        // Prevents event-bubbling
+        e.isDefaultPrevented() && e.preventDefault();
+        e.stopPropagation(); 
+        
         setIsSelected(!isSelected);
+        props.onSelected({ photoIndex: props.index, selected: isSelected });
     }
 
     useEffect(() => {
         setIsSelected(props.selected);
     }, [props.selected]);
 
-    const [hoverRef, isHovered] = useHover();
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
         <div
-            ref={(hoverRef as React.RefObject<HTMLDivElement>)}
+            onMouseEnter={(e) => setIsHovered(true)}
+            onMouseLeave={(e) => setIsHovered(false)}
             style={{ margin: props.margin, height: photo.height, width: photo.width } as React.CSSProperties }
             className={!isSelected ? "not-selected" : ""}>
-            { 
-                <div className={isHovered ? classes.overlay : classes.hiddenOverlay } ref={(hoverRef as React.RefObject<HTMLDivElement>)}>
-                    <Checkbox 
-                        icon={<CircleUnchecked />}
-                        checkedIcon={<CircleChecked />}
-                        checked={isSelected}
-                        onClick={handleOnClick} />
-                </div>
+            {
+                isHovered ?
+                    <div 
+                        className={classes.overlay}
+                        onClick={(e) => props.onOpened(props.index)}>
+                        <Checkbox 
+                            className={classes.checkbox}
+                            icon={<CircleUnchecked />}
+                            checkedIcon={<CircleChecked />}
+                            checked={isSelected}
+                            onClick={handleOnClick} />
+                    </div>
+                :
+                    <img
+                        className={isHovered ? classes.hiddenOverlay : ''}
+                        alt={photo?.title || ''}
+                        width={photo.width}
+                        height={photo.height}
+                        src={photo.src} />
             }
-            
-            <img
-                alt={photo?.title || ''}
-                // style={ isSelected ? { ...imgStyle, ...selectedImgStyle } : { ...imgStyle } }
-                width={photo.width}
-                height={photo.height}
-                src={photo.src}
-                onClick={(e) => props.onOpened(props.index)} />
         </div>
     );
 }
@@ -85,8 +79,8 @@ const ImageSelector = (props: IImageSelectorProps) => {
 export default ImageSelector;
 
 export interface IImageSelectorProps {
-    onSelected: (photoIndex: number) => void; // Clicked on the checkbox
     onOpened: (photoIndex: number) => void; // Clicked on the image
+    onSelected: (data: { photoIndex: number, selected: boolean }) => void; // Clicked on the checkbox
 
     index: number;
     photo: PhotoGallery;
