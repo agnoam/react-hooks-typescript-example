@@ -9,7 +9,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import SearchInput from "./SearchInput/SearchInput";
 import Config from '../../../constants/config.json';
 import ImageSelector from "./ImageSelector/ImageSelector";
-import { ExitToApp as ExitToAppIcon } from '@material-ui/icons';
+import { ExitToApp as ExitToAppIcon, GetApp as GetAppIcon } from '@material-ui/icons';
 import { AppBar, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from "@material-ui/core";
 import StickyAppBar from "./HideOnScroll/StickyAppBar";
 import configs from '../../../constants/config.json';
@@ -54,7 +54,9 @@ const useStyles = makeStyles((theme: Theme) =>
     banner: {
         background: `url(${configs.galleryPage.bannerURL})`,
         backgroundRepeat: 'no-repeat, repeat',
-        height: '150px'
+        backgroundSize: 'cover',
+        height: '150px',
+        justifyContent: 'center'
     },
     bannerSearch: {
         display: 'flex',
@@ -62,7 +64,7 @@ const useStyles = makeStyles((theme: Theme) =>
         margin: '125px'
     },
     title: {
-      flexGrow: 1,
+      flexGrow: 1
     }
   })
 );
@@ -172,16 +174,33 @@ const GalleryPage = () => {
         
     const [state, setState] = useState<GalleryState>({ 
         nameToSearch: '', viewPhoto: -1, items: [], 
-        isDone: true, selectionMode: false, selectedImages: []
+        isDone: true, selectedImages: []
     });
+
+
+    const handlePhotoSelection = useCallback((data: { photoIndex: number, selected: boolean }) => {
+        console.log('handlePhotoSelection execute', data);
+
+        const selectedImages: number[] = state?.selectedImages || [];
+        if (data.selected) {
+            selectedImages.push(data.photoIndex);
+        } else {
+            const startIndex: number = selectedImages.indexOf(data.photoIndex);
+            selectedImages.splice(startIndex, 1);
+        }
+
+        setState((state) => { return {...state, selectedImages} });
+    }, [state, setState]);
 
     const imageRenderer = useCallback(({ index, left, top, key, photo }) => (
         <ImageSelector
             onOpened={(index: number) => {
                 console.log('openning: ', index);
-                setState({ ...state, viewPhoto: index });
+                setState((state) => { return { ...state, viewPhoto: index } });
             }}
-            onSelected={() => console.log('selected')}
+            onSelected={handlePhotoSelection}
+            selectionMode={(!!((state as GalleryState)?.selectedImages.length))}
+
             selected={false}
             key={key}
             margin={"2px"}
@@ -189,9 +208,26 @@ const GalleryPage = () => {
             photo={photo}
             left={left}
             top={top} />
-    ), []);
+    ), [handlePhotoSelection, state]);
 
     const renderAppBar = () => {
+        const imagesCount: number = state?.selectedImages.length;
+        if (imagesCount) {
+            return (
+                <AppBar position="sticky">
+                    <Toolbar>
+                        <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+                            {/* <MenuIcon /> */}<div></div>
+                        </IconButton>
+                        <Typography variant="h6" className={classes.title}>{imagesCount} Selected</Typography>
+                        <IconButton onClick={() => null}>
+                            <GetAppIcon />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+            );
+        }
+
         return (
             <AppBar position="sticky">
                 <Toolbar>
@@ -265,10 +301,6 @@ const GalleryPage = () => {
                                 <Gallery
                                     photos={state?.items} 
                                     renderImage={/* state?.selectionMode ? */ imageRenderer/* : undefined */}
-                                    onClick={(e, photos) => setState((state) => {
-                                        console.log(photos.index);
-                                        return { ...state, viewPhoto: photos.index }
-                                    })}
                                 />
                             </div>
                         :
@@ -285,9 +317,7 @@ interface GalleryState {
     viewPhoto: number; // Image index in items 
     items: PhotoGallery[];
     isDone: boolean; // All images loaded
-
-    selectionMode: boolean;
-    selectedImages: string[];
+    selectedImages: number[]; // All selected photo IDs
 }
 
 export interface PhotoGallery {

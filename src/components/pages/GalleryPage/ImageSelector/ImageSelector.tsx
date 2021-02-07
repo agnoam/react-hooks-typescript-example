@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Checkbox, makeStyles, Theme } from "@material-ui/core";
 import { PhotoGallery } from '../GalleryPage';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
@@ -16,7 +16,7 @@ const useStyles = makeStyles<Theme, IImageSelectorProps>({
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         backgroundPosition: 'center center',
-        backgroundImage: (props) => `linear-gradient(to bottom, lightgray, transparent), url(${props.photo.src});`,
+        backgroundImage: (props) => `linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, transparent 35%), url(${props.photo.src});`,
         display: 'flex'
     },
     checkbox: {
@@ -28,6 +28,7 @@ const useStyles = makeStyles<Theme, IImageSelectorProps>({
 
 const ImageSelector = (props: IImageSelectorProps) => {
     const classes = useStyles(props);
+    const [isHovered, setIsHovered] = useState(!!props.selectionMode);
     const [isSelected, setIsSelected] = useState(props.selected);
     const photo = props.photo;
 
@@ -36,24 +37,26 @@ const ImageSelector = (props: IImageSelectorProps) => {
         e.isDefaultPrevented() && e.preventDefault();
         e.stopPropagation(); 
         
-        setIsSelected(!isSelected);
-        props.onSelected({ photoIndex: props.index, selected: isSelected });
+        setIsSelected((state) => {
+            props.onSelected({ photoIndex: props.index, selected: !isSelected });
+            return !isSelected;
+        });
     }
 
-    useEffect(() => {
-        setIsSelected(props.selected);
-    }, [props.selected]);
+    // useEffect(() => {
+    //     setIsSelected(props.selected);
+    // }, [props.selected]);
 
-    const [isHovered, setIsHovered] = useState(false);
+    console.log('selectionMode: ', props.selectionMode)
 
     return (
         <div
-            onMouseEnter={(e) => setIsHovered(true)}
-            onMouseLeave={(e) => setIsHovered(false)}
+            onMouseEnter={(e) => !props.selectionMode && setIsHovered(true)}
+            onMouseLeave={(e) => !props.selectionMode && setIsHovered(false)}
             style={{ margin: props.margin, height: photo.height, width: photo.width } as React.CSSProperties }
             className={!isSelected ? "not-selected" : ""}>
             {
-                isHovered ?
+                props.selectionMode || isHovered || isSelected ?
                     <div 
                         className={classes.overlay}
                         onClick={(e) => props.onOpened(props.index)}>
@@ -89,4 +92,11 @@ export interface IImageSelectorProps {
     left: number;
     selected: boolean;
     direction?: string | "column";
+
+    selectionMode?: boolean; // If true, `onHover` will be always true
+}
+
+export interface SelectionData {
+    photoIndex: number;
+    selected: boolean;
 }
