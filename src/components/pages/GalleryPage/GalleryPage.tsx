@@ -9,10 +9,11 @@ import InfiniteScroll from "react-infinite-scroller";
 import SearchInput from "./SearchInput/SearchInput";
 import Config from '../../../constants/config.json';
 import ImageSelector from "./ImageSelector/ImageSelector";
-import { ExitToApp as ExitToAppIcon, GetApp as GetAppIcon } from '@material-ui/icons';
-import { AppBar, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from "@material-ui/core";
+import { ExitToApp as ExitToAppIcon, GetApp as GetAppIcon, Close as CloseIcon } from '@material-ui/icons';
+import { AppBar, Box, Button, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from "@material-ui/core";
 import StickyAppBar from "./HideOnScroll/StickyAppBar";
 import configs from '../../../constants/config.json';
+import axios from "axios";
 
 // @ts-ignore 
 import Lightbox from "react-awesome-lightbox";
@@ -49,14 +50,15 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
     },
     menuButton: {
-      marginRight: theme.spacing(2),
+    //   marginRight: theme.spacing(2),
     },
     banner: {
         background: `url(${configs.galleryPage.bannerURL})`,
         backgroundRepeat: 'no-repeat, repeat',
         backgroundSize: 'cover',
         height: '150px',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     bannerSearch: {
         display: 'flex',
@@ -189,7 +191,7 @@ const GalleryPage = () => {
             selectedImages.splice(startIndex, 1);
         }
 
-        setState((state) => { return {...state, selectedImages} });
+        setState((state) => { return {...state, selectedImages, items: state?.selectedImages.length >= 3 ? [] : state?.items} });
     }, [state, setState]);
 
     const imageRenderer = useCallback(({ index, left, top, key, photo }) => (
@@ -201,7 +203,7 @@ const GalleryPage = () => {
             onSelected={handlePhotoSelection}
             selectionMode={(!!((state as GalleryState)?.selectedImages.length))}
 
-            selected={false}
+            selected={!!state?.selectedImages.includes(index) || false}
             key={key}
             margin={"2px"}
             index={index}
@@ -210,23 +212,41 @@ const GalleryPage = () => {
             top={top} />
     ), [handlePhotoSelection, state]);
 
+    const downloadFiles = (selectedIndexes: number[]) => {
+        for (const index of selectedIndexes) {
+            const anchor: HTMLAnchorElement = document.createElement('a');
+            // anchor.href = state?.items[index].src;
+            anchor.download = state?.items[index].src;
+
+            anchor.click();
+        }
+    }
+    
+    const renderSelectedAppBar = () => {
+        const imagesCount: number = state?.selectedImages.length;
+        return (
+            <AppBar position="sticky">
+                <Toolbar>
+                    <IconButton 
+                        className={classes.menuButton} 
+                        color="inherit" 
+                        edge="start" 
+                        onClick={() => setState((state) => { return { ...state, selectedImages: [] } })}>
+                            <CloseIcon />
+                    </IconButton>
+                    <Typography variant="h6" className={classes.title}>{imagesCount} Selected</Typography>
+                    <IconButton onClick={() => null} color="inherit">
+                        <GetAppIcon />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+        );
+    }
+
     const renderAppBar = () => {
         const imagesCount: number = state?.selectedImages.length;
-        if (imagesCount) {
-            return (
-                <AppBar position="sticky">
-                    <Toolbar>
-                        <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                            {/* <MenuIcon /> */}<div></div>
-                        </IconButton>
-                        <Typography variant="h6" className={classes.title}>{imagesCount} Selected</Typography>
-                        <IconButton onClick={() => null}>
-                            <GetAppIcon />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
-            );
-        }
+        if (imagesCount) 
+            return renderSelectedAppBar();
 
         return (
             <AppBar position="sticky">
@@ -241,7 +261,7 @@ const GalleryPage = () => {
                             onChange={(e) => handleNameChange(e)} 
                             onClear={() => setState((state) => { return { ...state, items: [] } })} />
                     
-                    <IconButton onClick={logout}>
+                    <IconButton onClick={() => logout}>
                         <ExitToAppIcon />
                     </IconButton>
                 </Toolbar>
@@ -249,20 +269,53 @@ const GalleryPage = () => {
         );
     }
 
+    const clearSearchBox = () => {
+        console.log('searchInput cleared'); 
+        setState((state) => { return { ...state, items: [] } });
+    }
+
     const renderBanner = () => {
         return (
-            <AppBar color="transparent">
-                    <Toolbar className={classes.banner}>
-                        <SearchInput
-                            className={classes.bannerSearch}
-                            initValue={state?.nameToSearch || ''}
-                            inputStyle={{ backgroundColor: "white" }}
-                            onKeyDown={(e) => (e.code === 'Enter' || e.code as string === 'NumpadEnter') && handleImagesLoad(0) }
-                            onChange={(e) => handleNameChange(e)} 
-                            onClear={() => setState((state) => { return { ...state, items: [] } })} />
-                    </Toolbar>
-            </AppBar>
+            <div>
+                <AppBar color="transparent" className={classes.banner}>
+                    <Box height='150px'>
+                        <Toolbar>
+                            <SearchInput
+                                className={classes.bannerSearch}
+                                initValue={state?.nameToSearch || ''}
+                                inputStyle={{ backgroundColor: "white" }}
+                                onKeyDown={(e) => (e.code === 'Enter' || e.code as string === 'NumpadEnter') && handleImagesLoad(0) }
+                                onChange={(e) => handleNameChange(e)} 
+                                onClear={clearSearchBox} />
+                        </Toolbar>
+                    </Box>
+                </AppBar>
+                
+                <div className='pusher'></div>
+            </div>
         );
+    }
+
+    const downloadFile = async (url: string, filename: string): Promise<void> => {
+        try {
+            const response = await axios({
+                url, 
+                method: 'GET',
+                headers: { 'Origin': 'http://localhost:3000' },
+                responseType: 'blob'
+            });
+    
+            const blobURL: string = window.URL.createObjectURL(new Blob([response.data]));
+            const link: HTMLAnchorElement = document.createElement('a');
+            
+            link.href = blobURL;
+            link.setAttribute('download', filename);
+            
+            document.body.appendChild(link);
+            link.click();
+        } catch(ex) {
+            console.error('downloadFile ex: ', ex);
+        }
     }
 
     // Similar to componentDidMount and componentDidUpdate
@@ -274,7 +327,7 @@ const GalleryPage = () => {
     return (
         <div className="page-content">
             <StickyAppBar header={renderAppBar()}>
-                { renderBanner() }
+                { state?.selectedImages.length ? renderSelectedAppBar() : renderBanner() }
             </StickyAppBar>
             
             <div className="gallery-container">
@@ -298,13 +351,13 @@ const GalleryPage = () => {
                                 :
                                     <div></div> }
 
+                                <Button onClick={() => downloadFile('https://files.geektime.co.il/wp-content/uploads/2020/11/new-google-photos-logo-1604824480.jpg', 'new-google-photos-logo-1604824480.jpg')}>Download</Button>
                                 <Gallery
                                     photos={state?.items} 
-                                    renderImage={/* state?.selectionMode ? */ imageRenderer/* : undefined */}
-                                />
+                                    renderImage={imageRenderer} />
                             </div>
                         :
-                            <div></div>
+                            <div>There is no images</div>
                     }
                 </InfiniteScroll>
             </div>

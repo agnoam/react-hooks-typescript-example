@@ -49,7 +49,8 @@ const SearchInput = (props: ISearchInputProps) => {
                                     disabled={!innerText} 
                                     onClick={() => {
                                         clearInput();
-                                        props?.onClear && props.onClear();
+                                        if (props?.onClear)
+                                            props.onClear();
                                     }}>
                                     <CloseIcon />
                                 </IconButton>

@@ -3,6 +3,7 @@ import { Checkbox, makeStyles, Theme } from "@material-ui/core";
 import { PhotoGallery } from '../GalleryPage';
 import CircleChecked from '@material-ui/icons/CheckCircleOutline';
 // import CircleCheckedFilled from '@material-ui/icons/CheckCircle';
+import { grey, green } from '@material-ui/core/colors';
 import CircleUnchecked from '@material-ui/icons/RadioButtonUnchecked';
 
 const useStyles = makeStyles<Theme, IImageSelectorProps>({
@@ -16,7 +17,7 @@ const useStyles = makeStyles<Theme, IImageSelectorProps>({
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         backgroundPosition: 'center center',
-        backgroundImage: (props) => `linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, transparent 35%), url(${props.photo.src});`,
+        backgroundImage: (props) => `linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 20%), url(${props.photo.src});`,
         display: 'flex'
     },
     checkbox: {
@@ -37,10 +38,8 @@ const ImageSelector = (props: IImageSelectorProps) => {
         e.isDefaultPrevented() && e.preventDefault();
         e.stopPropagation(); 
         
-        setIsSelected((state) => {
-            props.onSelected({ photoIndex: props.index, selected: !isSelected });
-            return !isSelected;
-        });
+        setIsSelected(!isSelected);
+        props.onSelected({ photoIndex: props.index, selected: !isSelected });
     }
 
     // useEffect(() => {
@@ -51,21 +50,21 @@ const ImageSelector = (props: IImageSelectorProps) => {
 
     return (
         <div
-            onMouseEnter={(e) => !props.selectionMode && setIsHovered(true)}
-            onMouseLeave={(e) => !props.selectionMode && setIsHovered(false)}
+            onMouseEnter={(e) => !props.selectionMode && setIsHovered(isHovered => !isHovered)}
+            onMouseLeave={(e) => !props.selectionMode && setIsHovered(isHovered => !isHovered)}
             style={{ margin: props.margin, height: photo.height, width: photo.width } as React.CSSProperties }
             className={!isSelected ? "not-selected" : ""}>
             {
                 props.selectionMode || isHovered || isSelected ?
                     <div 
                         className={classes.overlay}
-                        onClick={(e) => props.onOpened(props.index)}>
+                        onClick={() => props.onOpened(props.index)}>
                         <Checkbox 
                             className={classes.checkbox}
-                            icon={<CircleUnchecked />}
-                            checkedIcon={<CircleChecked />}
+                            icon={<CircleUnchecked style={{ color: grey[500] }} />}
+                            checkedIcon={<CircleChecked style={{ color: green[500] }} />}
                             checked={isSelected}
-                            onClick={handleOnClick} />
+                            onClick={(e) => handleOnClick(e)} />
                     </div>
                 :
                     <img
